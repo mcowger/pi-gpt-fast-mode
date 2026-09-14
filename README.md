@@ -1,4 +1,6 @@
-# @tunnckocore/pi-gpt-fast-mode
+# pi-gpt-fast-mode
+
+This is a fork of [@tunnckocore/pi-gpt-fast-mode](https://github.com/tunnckoCore/pi-gpt-fast-mode), created by [Matt Cowger](https://github.com/mcowger). The original implementation and idea belong to [TunnckoCore](https://github.com/tunnckoCore). Thanks for making it available.
 
 Fast mode for supported GPT-5.4 / GPT-5.5 / GPT-5.6 models in Pi - one file, easy to review. No ceremony.
 
@@ -28,36 +30,30 @@ Codex Fast mode is a service tier. This extension patches the provider payload b
 It only applies when the active model is one of:
 
 ```text
-openai/gpt-5.4
-openai/gpt-5.4-mini
-openai/gpt-5.5
-openai/gpt-5.6
-openai/gpt-5.6-sol
-openai/gpt-5.6-terra
-openai/gpt-5.6-luna
-openai-codex/gpt-5.4
-openai-codex/gpt-5.4-mini
-openai-codex/gpt-5.5
-openai-codex/gpt-5.6
-openai-codex/gpt-5.6-sol
-openai-codex/gpt-5.6-terra
-openai-codex/gpt-5.6-luna
+gpt-5.4
+gpt-5.4-mini
+gpt-5.5
+gpt-5.6
+gpt-5.6-sol
+gpt-5.6-terra
+gpt-5.6-luna
+gpt-6-astra
 ```
 
-Other models are left alone. No weird surprise bill multiplier on a random provider.
+Other model IDs are left alone. No weird surprise bill multiplier on an unsupported model.
 
 ## Install
 
 From GitHub:
 
 ```bash
-pi install git:github.com/tunnckoCore/pi-gpt-fast-mode
+pi install git:github.com/mcowger/pi-gpt-fast-mode
 ```
 
 Try it without installing:
 
 ```bash
-pi --no-extensions -e git:github.com/tunnckoCore/pi-gpt-fast-mode
+pi --no-extensions -e git:github.com/mcowger/pi-gpt-fast-mode
 ```
 
 Or from a local checkout:
@@ -66,31 +62,29 @@ Or from a local checkout:
 pi -e ./pi-gpt-fast-mode
 ```
 
-or npm
-
-```bash
-pi install npm:@tunnckocore/pi-gpt-fast-mode
-```
-
 ## Use
 
 Inside Pi:
 
 ```text
-/fast
+/fast              # toggle the current session
+/fast on           # enable the current session
+/fast off          # disable the current session
+/fast status       # show current and default states
+/fast default on   # enable future sessions by default
+/fast default off  # disable future sessions by default
+/fast-status id    # emit machine-readable status for an adapter
 ```
 
-Toggle it off the same way:
+Arguments are case-insensitive and extra whitespace is ignored. Invalid forms warn without changing anything.
 
-```text
-/fast
-```
+`/fast-status` sends a JSON notification with the type `pi-gpt-fast-mode.status`, the current session state, model, and model support status. Pass a request ID to correlate the response from an adapter.
 
 ## Default state
 
-Fast mode starts off by default.
+Fast mode starts off by default. `/fast default on` and `/fast default off` update future sessions only; use `/fast on` or `/fast off` for the current session.
 
-To start every session with Fast mode on, add this to Pi's global settings file:
+The default commands update the same global settings field you can configure manually:
 
 ```json
 {
@@ -100,7 +94,7 @@ To start every session with Fast mode on, add this to Pi's global settings file:
 }
 ```
 
-Set `enabled` to `false` or remove the block to start disabled again. The `/fast` command still toggles either way.
+Unrelated strict-JSON settings are preserved. Malformed or non-object settings files are left unchanged and reported as errors.
 
 The extension looks for that file in this order:
 
@@ -166,10 +160,9 @@ bun run test
 
 The test mocks the Pi extension API and checks the only things worth checking here:
 
-- default is off
-- `/fast` turns it on
-- `/fast` turns it off
-- only supported GPT-5.4 / GPT-5.5 / GPT-5.6 models get patched
+- current-session commands and status work
+- defaults are persisted for future sessions without clobbering other settings
+- only supported GPT-5.4 / GPT-5.5 / GPT-5.6 / GPT-6 models get patched
 - keybinding config is loaded
 
 No fake testing theater. Just enough net under the wire.
